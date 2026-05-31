@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Soap Cutting</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;cursor:none;
+  font-family:'Fredoka One',cursive;}
+
+body{background:#c8b89a;}
+#bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 90% 70% at 50% 38%,#f0e4d0 0%,#d8c8a8 55%,#b8a070 100%);}
+
+/* HUD */
+#hud{position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;gap:10px;padding:14px 16px;}
+.pill{background:rgba(255,255,255,.9);border-radius:50px;
+  padding:7px 18px;font-size:1rem;color:#333;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);white-space:nowrap;}
+#bar-wrap{flex:1;height:15px;background:rgba(0,0,0,.18);border-radius:10px;overflow:hidden;}
+#bar{height:100%;border-radius:10px;width:100%;
+  background:linear-gradient(90deg,#e65c00,#f9a825);transition:width .1s;}
+
+/* Stage canvas */
+#stage{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;}
+canvas{display:block;}
+
+/* Knife SVG – follows pointer */
+#knife-wrap{position:fixed;z-index:9999;pointer-events:none;display:none;
+  width:200px;height:44px;transform-origin:15% 65%;}
+
+/* Chunk particle */
+.ck{position:fixed;pointer-events:none;z-index:500;border-radius:6px;
+  animation:ckfly var(--t) ease-out forwards;}
+@keyframes ckfly{
+  0%  {opacity:1; transform:translate(0,0)         rotate(0deg)   scale(1);}
+  100%{opacity:0; transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(.05);}
+}
+
+/* Score pop */
+.spt{position:fixed;z-index:600;pointer-events:none;font-size:1.35rem;
+  color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5);
+  animation:sptA .8s ease-out forwards;}
+@keyframes sptA{0%{opacity:1;transform:translateY(0)scale(1);}
+  100%{opacity:0;transform:translateY(-55px)scale(1.2);}}
+
+/* WIN */
+#win{display:none;position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.6);align-items:center;justify-content:center;}
+#win.on{display:flex;}
+.wcard{background:linear-gradient(135deg,#fffaf4,#ffe8c4);border-radius:32px;
+  padding:44px 52px;text-align:center;
+  box-shadow:0 24px 70px rgba(0,0,0,.35);
+  animation:cpop .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes cpop{from{transform:scale(.3)rotate(-12deg);}to{transform:scale(1)rotate(0);}}
+#wemoji{font-size:6rem;display:block;margin-bottom:10px;
+  animation:eb .6s .15s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes eb{from{transform:scale(0);}to{transform:scale(1);}}
+.wh{font-size:1.9rem;color:#333;margin-bottom:5px;}
+.ws{color:#999;font-size:.95rem;margin-bottom:26px;}
+.btn{background:linear-gradient(135deg,#e65c00,#f9a825);color:#fff;border:none;
+  border-radius:50px;padding:14px 44px;font-family:'Fredoka One',cursive;
+  font-size:1.15rem;cursor:pointer;box-shadow:0 8px 28px rgba(230,92,0,.45);
+  transition:transform .12s;}
+.btn:active{transform:scale(.94);}
+
+/* AD */
+#ad{display:none;position:fixed;inset:0;z-index:800;
+  background:#0f172a;align-items:center;justify-content:center;}
+#ad.on{display:flex;}
+.abox{background:#1e293b;border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;padding:44px;text-align:center;width:min(340px,90%);}
+.aico{font-size:4rem;display:block;margin-bottom:12px;}
+.ah{font-size:1.65rem;color:#fff;margin-bottom:6px;}
+.ap{color:rgba(255,255,255,.45);font-size:.9rem;margin-bottom:22px;}
+#adn{font-size:3rem;color:#f9a825;margin-bottom:18px;}
+#adbtn{background:linear-gradient(135deg,#e65c00,#f9a825);color:#fff;border:none;
+  border-radius:50px;padding:14px 38px;font-family:'Fredoka One',cursive;
+  font-size:1.1rem;cursor:pointer;opacity:.3;pointer-events:none;
+  transition:opacity .3s,box-shadow .3s;}
+#adbtn.on{opacity:1;pointer-events:all;box-shadow:0 8px 28px rgba(230,92,0,.5);}
+
+#hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+  color:rgba(0,0,0,.3);font-size:.85rem;pointer-events:none;white-space:nowrap;z-index:50;}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+
+<div id="hud">
+  <div class="pill">LVL <span id="hlvl">1</span></div>
+  <div id="bar-wrap"><div id="bar"></div></div>
+  <div class="pill">⭐ <span id="hscore">0</span></div>
+</div>
+
+<div id="stage"><canvas id="c"></canvas></div>
+
+<!-- Knife -->
+<div id="knife-wrap">
+  <svg viewBox="0 0 200 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="200" height="44">
+    <path d="M30 28 L178 10 L188 18 L178 28 Z" fill="url(#bl)"/>
+    <path d="M30 28 L178 10" stroke="rgba(255,255,255,.88)" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M178 10 L190 14 L178 28Z" fill="#b8c8d4"/>
+    <rect x="20" y="21" width="14" height="13" rx="3" fill="#606870"/>
+    <rect x="2"  y="22" width="26" height="10" rx="4" fill="url(#hl)"/>
+    <circle cx="9"  cy="27" r="2.2" fill="#c8a060"/>
+    <circle cx="19" cy="27" r="2.2" fill="#c8a060"/>
+    <defs>
+      <linearGradient id="bl" x1="30" y1="19" x2="188" y2="19" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"  stop-color="#c4ccd8"/>
+        <stop offset="40%" stop-color="#edf2f6"/>
+        <stop offset="100%" stop-color="#d4dce8"/>
+      </linearGradient>
+      <linearGradient id="hl" x1="2" y1="22" x2="2" y2="32" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"  stop-color="#8b5e3c"/>
+        <stop offset="100%" stop-color="#4a2e14"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<div id="win">
+  <div class="wcard">
+    <span id="wemoji">🌟</span>
+    <div class="wh" id="wh">Находка!</div>
+    <div class="ws" id="ws">Внутри мыла</div>
+    <button class="btn" onclick="doNextLevel()">Следующий →</button>
+  </div>
+</div>
+
+<div id="ad">
+  <div class="abox">
+    <span class="aico">📺</span>
+    <div class="ah">Реклама</div>
+    <div class="ap">Посмотри и продолжи!</div>
+    <div id="adn">5</div>
+    <button id="adbtn" onclick="skipAd()">Продолжить →</button>
+  </div>
+</div>
+
+<div id="hint">Веди ножом по мылу ↔</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// AUDIO  – Web Audio synthetic scraping sound
+// ═══════════════════════════════════════════════
+let audioCtx = null;
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playScrape(intensity = 1) {
+  if (!audioCtx) return;
+  const dur   = 0.06 + Math.random() * 0.04;
+  const buf   = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * dur), audioCtx.sampleRate);
+  const data  = buf.getChannelData(0);
+  // White noise shaped into a "scrape"
+  for (let i = 0; i < data.length; i++) {
+    const env = Math.sin((i / data.length) * Math.PI); // fade in/out
+    data[i]   = (Math.random() * 2 - 1) * env * 0.6;
+  }
+  const src    = audioCtx.createBufferSource();
+  src.buffer   = buf;
+  // Band-pass filter → sounds like soap scrape
+  const bpf    = audioCtx.createBiquadFilter();
+  bpf.type     = 'bandpass';
+  bpf.frequency.value = 900 + Math.random() * 400;
+  bpf.Q.value  = 1.2;
+  const gain   = audioCtx.createGain();
+  gain.gain.value = 0.35 * intensity;
+  src.connect(bpf); bpf.connect(gain); gain.connect(audioCtx.destination);
+  src.start(); src.stop(audioCtx.currentTime + dur);
+}
+function playPop() {
+  if (!audioCtx) return;
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type   = 'sine';
+  osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.18);
+  gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+}
+
+// ═══════════════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════════════
+const THEMES = [
+  { top:'#f5ddb0', topH:'#fcefd8', side:'#c87848', sideD:'#a05c30', sideR:'#d89060', name:'Персиковое' },
+  { top:'#b0d8f5', topH:'#d8f0ff', side:'#3a70c0', sideD:'#2a5098', sideR:'#5090d8', name:'Синее'      },
+  { top:'#b8f0b0', topH:'#d8ffd0', side:'#38a050', sideD:'#287838', sideR:'#58c068', name:'Мятное'     },
+  { top:'#f5b0c8', topH:'#ffd8e8', side:'#c03870', sideD:'#982858', sideR:'#d85888', name:'Розовое'    },
+  { top:'#c8b0f5', topH:'#e8d8ff', side:'#7040c0', sideD:'#502898', sideR:'#9060d8', name:'Лавандовое' },
+];
+const REWARDS = ['😊','🌟','🦋','🌈','🦄','💎','🐉','🌙','🍀','🔮','👑','🎭','🐬','🦊','🐱','🌺','🔥','🍭'];
+
+// ═══════════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const VW     = Math.min(window.innerWidth, 480);
+const VH     = window.innerHeight;
+canvas.width  = VW;
+canvas.height = VH;
+
+// ─── Soap geometry (pseudo-3D flat look) ───
+// Front face: a rounded rectangle
+// Side faces: flat parallelogram strips (right side, bottom side = perspective illusion)
+const CX = VW / 2;                    // center x
+const CY = VH * 0.50;                 // center y of soap
+
+const SW  = VW  * 0.62;               // soap front face width
+const SH_UNIT = 30;                   // px height of one layer (front face)
+const TOTAL_LAYERS = 8;
+const FULL_H = TOTAL_LAYERS * SH_UNIT; // full soap front height
+
+// 3D depth offsets (pseudo-3D perspective)
+const DEPTH_X = SW * 0.22;            // right-side depth
+const DEPTH_Y = -SW * 0.12;           // top-side depth (goes up-right)
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let level      = 1;
+let score      = 0;
+let theme, reward;
+let layersDone = 0;
+let slicePct   = 0;    // 0..1 current layer progress
+let canCut     = true;
+let active     = false;
+let lastX      = 0;
+let soundTimer = 0;    // throttle sound
+
+const knifeWrap = document.getElementById('knife-wrap');
+
+// ═══════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════
+function draw() {
+  ctx.clearRect(0, 0, VW, VH);
+
+  const remaining = TOTAL_LAYERS - layersDone;
+  if (remaining <= 0) return;
+
+  const mainH  = remaining * SH_UNIT - slicePct * SH_UNIT;
+  const slabH  = slicePct * SH_UNIT;
+
+  // Soap is drawn with front face centered at CX, bottom at CY + mainH/2
+  const fL = CX - SW / 2;
+  const fR = CX + SW / 2;
+  const fB = CY + mainH / 2;   // front-face bottom y
+  const fT = fB - mainH;       // front-face top y
+
+  // ── Ground shadow ──
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(CX + DEPTH_X*0.5, fB + 28, SW*0.45, 18, 0, 0, Math.PI*2);
+  const shG = ctx.createRadialGradient(CX+DEPTH_X*0.5,fB+28,2,CX+DEPTH_X*0.5,fB+28,SW*0.45);
+  shG.addColorStop(0,'rgba(0,0,0,0.22)'); shG.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=shG; ctx.fill(); ctx.restore();
+
+  // ── MAIN SOAP BLOCK ──
+  drawSoapBlock(fL, fT, fR, fB, mainH, slabH);
+}
+
+function drawSoapBlock(fL, fT, fR, fB, mainH, slabH) {
+  const remaining = TOTAL_LAYERS - layersDone;
+  const R = 18; // corner radius for front face
+
+  // ── RIGHT side face ──
+  {
+    ctx.save();
+    ctx.beginPath();
+    // bottom-right corner → top-right corner of front
+    // + depth offset
+    ctx.moveTo(fR, fB);
+    ctx.lineTo(fR + DEPTH_X, fB + DEPTH_Y);
+    ctx.lineTo(fR + DEPTH_X, fT + DEPTH_Y);
+    ctx.lineTo(fR, fT);
+    ctx.closePath();
+    const rg = ctx.createLinearGradient(fR, fT, fR+DEPTH_X, fT+DEPTH_Y);
+    rg.addColorStop(0, theme.sideR);
+    rg.addColorStop(1, theme.sideD);
+    ctx.fillStyle = rg; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth=1; ctx.stroke();
+
+    // layer lines on right face
+    for (let l=1; l<remaining; l++) {
+      const ly = fB - l * SH_UNIT;
+      if (ly < fT) continue;
+      ctx.beginPath();
+      ctx.moveTo(fR, ly);
+      ctx.lineTo(fR+DEPTH_X, ly+DEPTH_Y);
+      ctx.strokeStyle='rgba(0,0,0,0.13)'; ctx.lineWidth=1.2; ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ── TOP face ──
+  {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(fL, fT);
+    ctx.lineTo(fR, fT);
+    ctx.lineTo(fR+DEPTH_X, fT+DEPTH_Y);
+    ctx.lineTo(fL+DEPTH_X, fT+DEPTH_Y);
+    ctx.closePath();
+    const tg = ctx.createLinearGradient(fL, fT, fR+DEPTH_X, fT+DEPTH_Y);
+    tg.addColorStop(0, theme.topH);
+    tg.addColorStop(0.5, theme.top);
+    tg.addColorStop(1, theme.topH);
+    ctx.fillStyle=tg; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.lineWidth=1; ctx.stroke();
+
+    // Shine
+    const scx = fL + (SW+DEPTH_X)*0.3;
+    const scy = fT + DEPTH_Y*0.4;
+    const sg = ctx.createRadialGradient(scx,scy,2,scx+10,scy+4,SW*0.38);
+    sg.addColorStop(0,'rgba(255,255,255,.55)'); sg.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=sg; ctx.fill();
+
+    // Emoji on top (revealed progressively)
+    if (layersDone > 0) {
+      const pct = layersDone / TOTAL_LAYERS;
+      const ecx = (fL+fR)/2 + DEPTH_X*0.4;
+      const ecy = fT + DEPTH_Y*0.5;
+      ctx.globalAlpha = Math.min(1, pct*2.2);
+      ctx.font = `${Math.round(12 + pct*34)}px serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(reward, ecx, ecy+4);
+      ctx.globalAlpha=1;
+    }
+    ctx.restore();
+  }
+
+  // ── FRONT face ──
+  {
+    ctx.save();
+    roundRect(ctx, fL, fT, SW, mainH, R);
+    ctx.clip();
+
+    // Base gradient (outer color top → inner color bottom)
+    const fg = ctx.createLinearGradient(fL, fT, fL, fB);
+    fg.addColorStop(0, theme.top);
+    fg.addColorStop(0.15, theme.side);
+    fg.addColorStop(1, theme.sideD);
+    ctx.fillStyle=fg; ctx.fill();
+
+    // Revealed inner lighter strip at top (after cuts)
+    if (layersDone > 0 || slicePct > 0.05) {
+      const innerH = Math.min(SH_UNIT * 0.6, mainH * 0.18);
+      const ig = ctx.createLinearGradient(0, fT, 0, fT+innerH);
+      ig.addColorStop(0, theme.topH);
+      ig.addColorStop(1, theme.top+'00');
+      ctx.fillStyle=ig;
+      ctx.fillRect(fL, fT, SW, innerH);
+    }
+
+    // Bubble texture
+    ctx.globalAlpha=0.12;
+    ctx.fillStyle='rgba(255,255,255,.8)';
+    for (let i=0;i<18;i++) {
+      const bx = fL + pseudoR(i*7)  * SW;
+      const by = fT + pseudoR(i*13) * mainH;
+      const br = 5 + pseudoR(i*3)*12;
+      ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    // Front face shine
+    const shG = ctx.createLinearGradient(fL,fT,fL+SW*0.3,fT+mainH*0.4);
+    shG.addColorStop(0,'rgba(255,255,255,0.28)'); shG.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=shG; ctx.fillRect(fL,fT,SW,mainH);
+
+    // Layer horizontal lines
+    for (let l=1; l<remaining; l++) {
+      const ly = fB - l*SH_UNIT;
+      if (ly < fT || ly > fB) continue;
+      ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(fL+R*0.4,ly); ctx.lineTo(fR-R*0.4,ly); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Front face border
+    ctx.save();
+    roundRect(ctx, fL, fT, SW, mainH, R);
+    ctx.strokeStyle='rgba(0,0,0,.1)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.restore();
+  }
+
+  // ── SLAB being sliced (animated sliding off right) ──
+  if (slabH > 1 && slicePct < 1) {
+    const offX = slicePct * 55;
+    const offY = slicePct * 18;
+    const sT   = fT - slabH;  // top of slab (above main block)
+    const sB   = fT;           // bottom of slab
+
+    ctx.save();
+    ctx.translate(offX, offY);
+
+    // Slab right side
+    ctx.beginPath();
+    ctx.moveTo(fR, sB); ctx.lineTo(fR+DEPTH_X, sB+DEPTH_Y);
+    ctx.lineTo(fR+DEPTH_X, sT+DEPTH_Y); ctx.lineTo(fR, sT);
+    ctx.closePath();
+    ctx.fillStyle=theme.sideR; ctx.fill();
+
+    // Slab top
+    ctx.beginPath();
+    ctx.moveTo(fL,sT); ctx.lineTo(fR,sT);
+    ctx.lineTo(fR+DEPTH_X,sT+DEPTH_Y); ctx.lineTo(fL+DEPTH_X,sT+DEPTH_Y);
+    ctx.closePath();
+    ctx.fillStyle=theme.top; ctx.fill();
+
+    // Slab front
+    roundRect(ctx, fL, sT, SW, slabH, Math.min(R, slabH*0.4));
+    const sfg = ctx.createLinearGradient(0,sT,0,sB);
+    sfg.addColorStop(0, theme.topH);
+    sfg.addColorStop(1, theme.side);
+    ctx.fillStyle=sfg; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.08)'; ctx.lineWidth=1.5; ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // HUD
+  const pct = (remaining * SH_UNIT - slicePct*SH_UNIT) / FULL_H;
+  document.getElementById('bar').style.width = (pct*100)+'%';
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);    ctx.quadraticCurveTo(x+w, y,   x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);    ctx.quadraticCurveTo(x,   y+h, x,   y+h-r);
+  ctx.lineTo(x, y+r);      ctx.quadraticCurveTo(x,   y,   x+r, y);
+  ctx.closePath();
+}
+
+function pseudoR(seed) {
+  const x = Math.sin(seed+1)*10000; return x-Math.floor(x);
+}
+
+// ═══════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════
+function xy(e){ return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY}; }
+
+function onSoap(x,y){
+  const remaining = TOTAL_LAYERS-layersDone;
+  const mainH = remaining*SH_UNIT - slicePct*SH_UNIT;
+  const fB = CY + mainH/2 + slicePct*SH_UNIT/2;
+  const fT = fB - mainH;
+  return x > CX-SW/2-30 && x < CX+SW/2+DEPTH_X+30
+      && y > fT-SH_UNIT-30 && y < fB+30;
+}
+
+canvas.addEventListener('mousedown',  e=>{ initAudio(); const p=xy(e); if(onSoap(p.x,p.y)){active=true;lastX=p.x;} });
+document.addEventListener('mousemove',e=>{ const p=xy(e); moveKnife(p.x,p.y); if(active&&canCut)cut(p.x,p.y); });
+document.addEventListener('mouseup',  ()=>active=false);
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); initAudio(); const p=xy(e); if(onSoap(p.x,p.y)){active=true;lastX=p.x;} },{passive:false});
+document.addEventListener('touchmove',e=>{ e.preventDefault(); const p=xy(e); moveKnife(p.x,p.y); if(active&&canCut)cut(p.x,p.y); },{passive:false});
+document.addEventListener('touchend', ()=>active=false);
+document.addEventListener('mouseleave',()=>{ active=false; knifeWrap.style.display='none'; });
+
+function moveKnife(x,y){
+  knifeWrap.style.display='block';
+  // Position knife: tip at cursor, handle to the bottom-left
+  knifeWrap.style.left = (x - 178) + 'px';
+  knifeWrap.style.top  = (y - 20)  + 'px';
+}
+
+function cut(x,y){
+  if (!canCut) return;
+  const dx = Math.abs(x - lastX);
+  if (dx < 1.5) return;
+  lastX = x;
+
+  const dmg = dx * 0.008;
+  slicePct = Math.min(1, slicePct + dmg);
+
+  // Sound throttle
+  soundTimer++;
+  if (soundTimer % 3 === 0) playScrape(0.6 + Math.random()*0.4);
+
+  // Chunk particles at knife tip (blade tip ≈ at cursor)
+  if (Math.random() < 0.55) spawnChunk(x, y);
+
+  if (slicePct >= 1) finishLayer(x, y);
+}
+
+// ═══════════════════════════════════════════════
+// CHUNKS – fly off from cut edge
+// ═══════════════════════════════════════════════
+function spawnChunk(x, y, big=false) {
+  const n = big ? 3 : 1;
+  for (let i=0;i<n;i++){
+    const el = document.createElement('div');
+    el.className='ck';
+    const s = big ? 8+Math.random()*20 : 4+Math.random()*11;
+    const col = [theme.side, theme.top, theme.sideR][Math.floor(Math.random()*3)];
+    el.style.cssText=`width:${s}px;height:${s*(0.4+Math.random()*.8)}px;
+      left:${x-s/2}px;top:${y-s/2}px;background:${col};
+      border-radius:${Math.random()>.4?'50%':'5px'};`;
+    // Chunks mostly fly LEFT and DOWN (away from cut direction)
+    const ang = -Math.PI*0.15 + (Math.random()-0.5)*Math.PI*0.9;
+    const d   = (big?70:30)+Math.random()*90;
+    el.style.setProperty('--x', Math.cos(ang)*d+'px');
+    el.style.setProperty('--y', (Math.sin(ang)*d+30+Math.random()*40)+'px');
+    el.style.setProperty('--r', (Math.random()*540-270)+'deg');
+    const t = .4+Math.random()*.5+'s';
+    el.style.setProperty('--t',t);
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), parseFloat(t)*1000+100);
+  }
+}
+
+function scorePop(txt,x,y){
+  const el=document.createElement('div');
+  el.cl
