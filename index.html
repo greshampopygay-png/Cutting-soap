@@ -4,16 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>🧼 Soap Cutting</title>
+<!-- Monetag -->
+<script src="//omg10.com/4/11109908" type="text/javascript"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{
   width:100%;height:100%;
-  overflow:hidden;
-  touch-action:none;
-  user-select:none;
-  cursor:none;
-  font-family:-apple-system,sans-serif;
-  font-weight:700;
+  overflow:hidden;touch-action:none;user-select:none;cursor:none;
+  font-family:-apple-system,sans-serif;font-weight:700;
   background:radial-gradient(ellipse 80% 60% at 50% 40%,#f0e2cc,#d8c4a0 55%,#b89a70);
 }
 
@@ -23,230 +21,204 @@ html,body{
   display:flex;align-items:center;gap:10px;padding:12px 14px;
 }
 .pill{
-  background:#fff;border-radius:50px;
-  padding:7px 16px;font-size:1rem;color:#333;
-  box-shadow:0 2px 8px rgba(0,0,0,.15);
-  white-space:nowrap;
+  background:#fff;border-radius:50px;padding:7px 16px;font-size:1rem;color:#333;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);white-space:nowrap;
 }
-#bar-wrap{
-  flex:1;height:14px;
-  background:rgba(0,0,0,.18);
-  border-radius:10px;overflow:hidden;
-}
-#bar{
-  height:100%;border-radius:10px;
-  background:linear-gradient(90deg,#e65c00,#f9a825);
-  transition:width .1s;width:100%;
-}
+#bar-wrap{flex:1;height:14px;background:rgba(0,0,0,.18);border-radius:10px;overflow:hidden;}
+#bar{height:100%;border-radius:10px;background:linear-gradient(90deg,#e65c00,#f9a825);transition:width .1s;width:100%;}
 
-/* CENTER STAGE */
+/* STAGE */
 #stage{
-  position:fixed;
-  top:60px;left:0;right:0;bottom:50px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position:fixed;top:60px;left:0;right:0;bottom:50px;
+  display:flex;align-items:center;justify-content:center;
 }
 
-/* SOAP WRAPPER */
-#soap-wrap{
-  position:relative;
-  /* Fixed pixel size — no calculations needed */
-  width:260px;
-  height:380px; /* will shrink via JS on layer cut */
-}
-
-/* TOP face */
+/* SOAP */
 #top-face{
-  position:absolute;
-  top:0;left:22px;
+  position:absolute;top:0;left:22px;
   width:238px;height:22px;
-  background:#fcefd8;
   clip-path:polygon(0 100%,20px 0,238px 0,218px 100%);
   z-index:3;
 }
-
-/* RIGHT face */
-#right-face{
-  position:absolute;
-  top:22px;right:0;
-  width:42px;
-  background:linear-gradient(135deg,#d89060,#905028);
-  z-index:2;
-  /* height set by JS */
-}
-
-/* FRONT face */
+#right-face{position:absolute;top:22px;right:0;width:42px;z-index:2;}
 #front-face{
-  position:absolute;
-  top:22px;left:0;
-  width:218px;
-  background:linear-gradient(180deg,#fcefd8 0%,#c87848 15%,#904020 100%);
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 8px 24px rgba(0,0,0,.22),
-             inset 0 1px 0 rgba(255,255,255,.3);
+  position:absolute;top:22px;left:0;width:218px;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3);
   z-index:4;
-  /* height set by JS */
 }
-
-/* Shine on front */
 #front-face::after{
-  content:'';
-  position:absolute;inset:0;
+  content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 55%);
   pointer-events:none;border-radius:14px;
 }
-
-/* Cut reveal strip */
-#cut-strip{
-  position:absolute;top:0;left:0;right:0;
-  height:0;
-  background:linear-gradient(180deg,#fcefd8 0%,transparent 100%);
-  pointer-events:none;
-  transition:height .05s;
-}
-
-/* Layer lines container */
+#cut-strip{position:absolute;top:0;left:0;right:0;height:0;pointer-events:none;}
 #layer-lines{position:absolute;inset:0;pointer-events:none;}
-.ll{
-  position:absolute;left:8px;right:8px;
-  height:1.5px;background:rgba(0,0,0,.10);
-}
-
-/* Emoji reveal (on front face) */
+.ll{position:absolute;left:8px;right:8px;height:1.5px;background:rgba(0,0,0,.10);}
 #emoji-on-front{
-  position:absolute;
-  left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  font-size:0;opacity:0;
-  pointer-events:none;
-  transition:font-size .3s,opacity .3s;
-  z-index:5;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:0;opacity:0;pointer-events:none;transition:font-size .3s,opacity .3s;z-index:5;
 }
-
-/* SLAB */
 #slab{
-  position:absolute;
-  left:0;top:0;
-  width:218px;
-  background:linear-gradient(180deg,#fcefd8,#c87848);
-  border-radius:12px;
-  opacity:0;
-  pointer-events:none;
-  box-shadow:2px 3px 10px rgba(0,0,0,.2);
-  z-index:6;
-  overflow:hidden;
+  position:absolute;left:0;top:0;width:218px;
+  border-radius:12px;opacity:0;pointer-events:none;
+  box-shadow:2px 3px 10px rgba(0,0,0,.2);z-index:6;overflow:hidden;
 }
 #slab::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,0));
-  border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,0));border-radius:12px;
 }
-
-/* Ground shadow */
 #gshadow{
-  position:absolute;
-  bottom:-24px;left:20px;
-  width:200px;height:20px;
+  position:absolute;bottom:-24px;left:20px;width:200px;height:20px;
   background:radial-gradient(ellipse,rgba(0,0,0,.2) 0%,transparent 70%);
   border-radius:50%;pointer-events:none;
 }
 
 /* KNIFE */
 #knife{
-  position:fixed;z-index:999;
-  pointer-events:none;
-  display:none;
-  font-size:50px;
-  line-height:1;
+  position:fixed;z-index:999;pointer-events:none;display:none;
+  font-size:50px;line-height:1;
   transform:rotate(-38deg) scaleX(-1);
   filter:drop-shadow(2px 4px 8px rgba(0,0,0,.4));
 }
 
-/* CHUNK */
-.ck{
-  position:fixed;pointer-events:none;z-index:500;
-  border-radius:5px;
-  animation:ckfly .6s ease-out forwards;
-}
+/* CHUNKS */
+.ck{position:fixed;pointer-events:none;z-index:500;border-radius:5px;animation:ckfly .6s ease-out forwards;}
 @keyframes ckfly{
-  0%  {opacity:1;transform:translate(0,0)rotate(0)scale(1);}
+  0%{opacity:1;transform:translate(0,0)rotate(0)scale(1);}
   100%{opacity:0;transform:translate(var(--x),var(--y))rotate(var(--r))scale(.05);}
 }
 
 /* SCORE POP */
-.spt{
-  position:fixed;z-index:600;pointer-events:none;
-  font-size:1.4rem;color:#fff;
-  text-shadow:0 2px 8px rgba(0,0,0,.5);
-  animation:sptA .8s ease-out forwards;
-}
-@keyframes sptA{
-  0%  {opacity:1;transform:translateY(0)scale(1);}
-  100%{opacity:0;transform:translateY(-55px)scale(1.2);}
-}
+.spt{position:fixed;z-index:600;pointer-events:none;font-size:1.4rem;color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.5);animation:sptA .8s ease-out forwards;}
+@keyframes sptA{0%{opacity:1;transform:translateY(0)scale(1);}100%{opacity:0;transform:translateY(-55px)scale(1.2);}}
 
 /* WIN */
-#win{
-  display:none;position:fixed;inset:0;z-index:700;
-  background:rgba(0,0,0,.6);
-  align-items:center;justify-content:center;
-}
+#win{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);align-items:center;justify-content:center;}
 #win.on{display:flex;}
 .wcard{
-  background:linear-gradient(135deg,#fffaf4,#ffe8c4);
-  border-radius:28px;padding:36px 44px;text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-  animation:wpop .5s cubic-bezier(.34,1.56,.64,1) both;
+  background:linear-gradient(135deg,#fffaf4,#ffe8c4);border-radius:28px;padding:36px 44px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);animation:wpop .5s cubic-bezier(.34,1.56,.64,1) both;
 }
 @keyframes wpop{from{transform:scale(.3)rotate(-10deg);}to{transform:scale(1)rotate(0);}}
-#wem{
-  font-size:5.5rem;display:block;margin-bottom:8px;
-  animation:eb .6s .1s cubic-bezier(.34,1.56,.64,1) both;
-}
+#wem{font-size:5.5rem;display:block;margin-bottom:8px;animation:eb .6s .1s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes eb{from{transform:scale(0);}to{transform:scale(1);}}
 .wh{font-size:1.7rem;color:#333;margin-bottom:4px;}
 .ws{color:#aaa;font-size:.9rem;margin-bottom:22px;}
 .btn{
-  background:linear-gradient(135deg,#e65c00,#f9a825);
-  color:#fff;border:none;border-radius:50px;
-  padding:13px 40px;font-family:inherit;font-weight:700;
-  font-size:1.05rem;cursor:pointer;
+  background:linear-gradient(135deg,#e65c00,#f9a825);color:#fff;border:none;border-radius:50px;
+  padding:13px 40px;font-family:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;
   box-shadow:0 6px 20px rgba(230,92,0,.4);
 }
 .btn:active{transform:scale(.95);}
 
-/* AD */
-#ad{
-  display:none;position:fixed;inset:0;z-index:800;
-  background:#0f172a;
-  align-items:center;justify-content:center;
-}
+/* AD OVERLAY */
+#ad{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.85);align-items:center;justify-content:center;flex-direction:column;gap:20px;}
 #ad.on{display:flex;}
 .abox{
-  background:#1e293b;border:1px solid rgba(255,255,255,.1);
-  border-radius:24px;padding:40px;text-align:center;
-  width:min(320px,88%);
+  background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:24px;
+  padding:40px;text-align:center;width:min(320px,88%);
 }
 .aico{font-size:3.5rem;display:block;margin-bottom:10px;}
 .ah{font-size:1.5rem;color:#fff;margin-bottom:5px;}
 .ap{color:rgba(255,255,255,.4);font-size:.85rem;margin-bottom:18px;}
-#adn{font-size:2.8rem;color:#f9a825;margin-bottom:14px;}
+#adn{font-size:3rem;color:#f9a825;margin-bottom:14px;font-weight:900;}
 #adbtn{
-  background:linear-gradient(135deg,#e65c00,#f9a825);
-  color:#fff;border:none;border-radius:50px;
-  padding:13px 34px;font-family:inherit;font-weight:700;
-  font-size:1rem;cursor:pointer;opacity:.3;pointer-events:none;
-  transition:opacity .3s;
+  background:linear-gradient(135deg,#e65c00,#f9a825);color:#fff;border:none;border-radius:50px;
+  padding:13px 34px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;
+  opacity:.3;pointer-events:none;transition:opacity .3s;
 }
-#adbtn.on{opacity:1;pointer-events:all;}
+#adbtn.on{opacity:1;pointer-events:all;box-shadow:0 6px 20px rgba(230,92,0,.5);}
+.ad-note{color:rgba(255,255,255,.3);font-size:.75rem;margin-top:8px;}
+
+/* SAVE TOAST */
+#save-toast{
+  position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.7);color:#fff;padding:8px 20px;border-radius:50px;
+  font-size:.8rem;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;
+}
+#save-toast.show{opacity:1;}
 
 /* HINT */
 #hint{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  color:rgba(0,0,0,.25);font-size:.82rem;
-  pointer-events:none;z-index:50;white-space:nowrap;
+  position:fixed;bottom:16px;right:14px;
+  color:rgba(0,0,0,.25);font-size:.78rem;pointer-events:none;z-index:50;white-space:nowrap;
+}
+
+/* BOTTOM LEFT BUTTONS */
+#bottom-btns{
+  position:fixed;bottom:14px;left:10px;z-index:200;
+  display:flex;flex-direction:column;gap:7px;align-items:flex-start;
+}
+.bb{
+  background:#fff;border-radius:50px;
+  padding:7px 12px;font-size:.75rem;color:#333;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  cursor:pointer;text-decoration:none;
+  display:flex;align-items:center;gap:5px;
+  border:none;font-family:inherit;font-weight:700;
+  transition:transform .12s;white-space:nowrap;
+  opacity:0.92;
+}
+.bb:active{transform:scale(.93);}
+.bb.gold{background:linear-gradient(135deg,#f9a825,#e65c00);color:#fff;}
+.bb.blue{background:linear-gradient(135deg,#2196f3,#0d47a1);color:#fff;}
+.bb.green{background:linear-gradient(135deg,#4caf50,#1b5e20);color:#fff;}
+
+/* COLLECTION PANEL */
+#coll-panel{
+  display:none;position:fixed;inset:0;z-index:900;
+  background:rgba(0,0,0,.75);align-items:center;justify-content:center;
+}
+#coll-panel.on{display:flex;}
+.cpanel{
+  background:#fff;border-radius:24px;
+  width:min(370px,94%);max-height:85vh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.cpanel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;
+  border-bottom:1px solid #f0f0f0;
+  flex-shrink:0;
+}
+.cpanel-header h2{font-size:1.25rem;color:#333;margin:0;}
+.cpanel-close{
+  width:36px;height:36px;border-radius:50%;
+  background:#f0f0f0;border:none;cursor:pointer;
+  font-size:1.2rem;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;flex-shrink:0;
+}
+.cpanel-close:active{background:#ddd;}
+.cpanel-stats{
+  padding:10px 20px 0;font-size:.85rem;color:#888;flex-shrink:0;
+}
+.coll-grid{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  padding:14px 16px 20px;overflow-y:auto;flex:1;
+}
+.coll-item{
+  width:56px;height:56px;border-radius:16px;
+  background:#f8f8f8;border:2px solid #eee;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.9rem;position:relative;
+  box-shadow:0 2px 6px rgba(0,0,0,.07);
+  transition:transform .15s;
+}
+.coll-item.found{
+  background:linear-gradient(135deg,#fff9f0,#fff3e0);
+  border:2px solid #f9a825;
+  box-shadow:0 3px 12px rgba(249,168,37,.25);
+}
+.coll-item.found:active{transform:scale(.92);}
+.coll-item.locked{filter:grayscale(1);opacity:.25;}
+.coll-item .check{
+  position:absolute;bottom:2px;right:2px;
+  font-size:.55rem;background:#4caf50;color:#fff;
+  border-radius:50%;width:14px;height:14px;
+  display:flex;align-items:center;justify-content:center;
 }
 </style>
 </head>
@@ -259,9 +231,16 @@ html,body{
   <div class="pill">⭐ <span id="hscore">0</span></div>
 </div>
 
+<!-- Bottom left buttons -->
+<div id="bottom-btns">
+  <div class="bb gold" onclick="openCollection()">🏆 Коллекция</div>
+  <a class="bb blue" href="https://www.donationalerts.com/r/xeoni7" target="_blank" rel="noopener">❤️ Поддержать</a>
+  <a class="bb green" href="https://greshampopygay-png.github.io/banana-clicker/" target="_blank" rel="noopener">🎮 Больше игр</a>
+</div>
+
 <!-- STAGE -->
 <div id="stage">
-  <div id="soap-wrap">
+  <div id="soap-wrap" style="position:relative;width:260px;height:380px;">
     <div id="top-face"></div>
     <div id="right-face"></div>
     <div id="front-face">
@@ -274,15 +253,16 @@ html,body{
   </div>
 </div>
 
-<!-- Knife -->
 <div id="knife">🔪</div>
+<div id="hint">Веди ножом по мылу ↔</div>
+<div id="save-toast">💾 Прогресс сохранён</div>
 
 <!-- WIN -->
 <div id="win">
   <div class="wcard">
     <span id="wem">🌟</span>
     <div class="wh" id="wh">Находка внутри!</div>
-    <div class="ws" id="ws">Персиковое мыло</div>
+    <div class="ws" id="ws">Уровень пройден</div>
     <button class="btn" onclick="goAd()">Следующий →</button>
   </div>
 </div>
@@ -291,14 +271,27 @@ html,body{
 <div id="ad">
   <div class="abox">
     <span class="aico">📺</span>
-    <div class="ah">Реклама</div>
-    <div class="ap">Посмотри и продолжи!</div>
+    <div class="ah">Смотришь рекламу...</div>
+    <div class="ap">Подожди — скоро продолжим!</div>
     <div id="adn">5</div>
     <button id="adbtn" onclick="goNext()">Продолжить →</button>
+    <div class="ad-note">Реклама заканчивается автоматически</div>
   </div>
 </div>
 
-<div id="hint">Веди ножом по мылу ↔</div>
+<!-- COLLECTION PANEL -->
+<div id="coll-panel">
+  <div class="cpanel">
+    <div class="cpanel-header">
+      <h2>🏆 Моя коллекция</h2>
+      <button class="cpanel-close" onclick="closeCollection()">✕</button>
+    </div>
+    <div class="cpanel-stats">
+      Найдено: <span id="coll-count">0</span> / <span id="coll-total">0</span>
+    </div>
+    <div class="coll-grid" id="coll-grid"></div>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -341,78 +334,93 @@ function playTring() {
   if (!AC) return;
   try {
     var t=AC.currentTime;
-    [[1047,0],[1319,0.05],[1568,0.1]].forEach(function(pair) {
-      var freq=pair[0], dl=pair[1];
+    [[1047,0],[1319,0.05],[1568,0.1]].forEach(function(pair){
       var o=AC.createOscillator(),g=AC.createGain();
-      o.type='sine'; o.frequency.value=freq;
-      g.gain.setValueAtTime(0,t+dl);
-      g.gain.linearRampToValueAtTime(0.28,t+dl+0.01);
-      g.gain.exponentialRampToValueAtTime(0.001,t+dl+1.1);
+      o.type='sine';o.frequency.value=pair[0];
+      g.gain.setValueAtTime(0,t+pair[1]);
+      g.gain.linearRampToValueAtTime(0.28,t+pair[1]+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001,t+pair[1]+1.1);
       o.connect(g);g.connect(AC.destination);
-      o.start(t+dl);o.stop(t+dl+1.2);
+      o.start(t+pair[1]);o.stop(t+pair[1]+1.2);
     });
   } catch(e) {}
 }
 
 // ═══════════════════════════════════════════
-//  DATA
+//  DATA — 15 THEMES + 40 REWARDS
 // ═══════════════════════════════════════════
 var THEMES = [
-  {
-    name:'Персиковое',
-    front:'linear-gradient(180deg,#fcefd8 0%,#c87848 15%,#904020 100%)',
-    top:'#fcefd8',
-    right:'linear-gradient(135deg,#d89060,#905028)',
-    slab:'linear-gradient(180deg,#fcefd8,#c87848)',
-    strip:'#fcefd8',
-    chunks:['#c87848','#f5ddb0','#d89060','#fcefd8']
-  },
-  {
-    name:'Синее',
-    front:'linear-gradient(180deg,#d8f0ff 0%,#3a70c0 15%,#1a4890 100%)',
-    top:'#d8f0ff',
-    right:'linear-gradient(135deg,#5090d8,#2a5098)',
-    slab:'linear-gradient(180deg,#d8f0ff,#3a70c0)',
-    strip:'#d8f0ff',
-    chunks:['#3a70c0','#b0d8f5','#5090d8','#d8f0ff']
-  },
-  {
-    name:'Мятное',
-    front:'linear-gradient(180deg,#d8ffd0 0%,#38a050 15%,#186830 100%)',
-    top:'#d8ffd0',
-    right:'linear-gradient(135deg,#58c068,#287838)',
-    slab:'linear-gradient(180deg,#d8ffd0,#38a050)',
-    strip:'#d8ffd0',
-    chunks:['#38a050','#b8f0b0','#58c068','#d8ffd0']
-  },
-  {
-    name:'Розовое',
-    front:'linear-gradient(180deg,#ffd8e8 0%,#c03870 15%,#801850 100%)',
-    top:'#ffd8e8',
-    right:'linear-gradient(135deg,#d85888,#982858)',
-    slab:'linear-gradient(180deg,#ffd8e8,#c03870)',
-    strip:'#ffd8e8',
-    chunks:['#c03870','#f5b0c8','#d85888','#ffd8e8']
-  },
-  {
-    name:'Лавандовое',
-    front:'linear-gradient(180deg,#e8d8ff 0%,#7040c0 15%,#401890 100%)',
-    top:'#e8d8ff',
-    right:'linear-gradient(135deg,#9060d8,#502898)',
-    slab:'linear-gradient(180deg,#e8d8ff,#7040c0)',
-    strip:'#e8d8ff',
-    chunks:['#7040c0','#c8b0f5','#9060d8','#e8d8ff']
-  }
+  { name:'Персиковое',   front:'linear-gradient(180deg,#fcefd8 0%,#c87848 15%,#904020 100%)', top:'#fcefd8', right:'linear-gradient(135deg,#d89060,#905028)', slab:'linear-gradient(180deg,#fcefd8,#c87848)', strip:'#fcefd8', chunks:['#c87848','#f5ddb0','#d89060'] },
+  { name:'Синее',        front:'linear-gradient(180deg,#d8f0ff 0%,#3a70c0 15%,#1a4890 100%)', top:'#d8f0ff', right:'linear-gradient(135deg,#5090d8,#2a5098)', slab:'linear-gradient(180deg,#d8f0ff,#3a70c0)', strip:'#d8f0ff', chunks:['#3a70c0','#b0d8f5','#5090d8'] },
+  { name:'Мятное',       front:'linear-gradient(180deg,#d8ffd0 0%,#38a050 15%,#186830 100%)', top:'#d8ffd0', right:'linear-gradient(135deg,#58c068,#287838)', slab:'linear-gradient(180deg,#d8ffd0,#38a050)', strip:'#d8ffd0', chunks:['#38a050','#b8f0b0','#58c068'] },
+  { name:'Розовое',      front:'linear-gradient(180deg,#ffd8e8 0%,#c03870 15%,#801850 100%)', top:'#ffd8e8', right:'linear-gradient(135deg,#d85888,#982858)', slab:'linear-gradient(180deg,#ffd8e8,#c03870)', strip:'#ffd8e8', chunks:['#c03870','#f5b0c8','#d85888'] },
+  { name:'Лавандовое',   front:'linear-gradient(180deg,#e8d8ff 0%,#7040c0 15%,#401890 100%)', top:'#e8d8ff', right:'linear-gradient(135deg,#9060d8,#502898)', slab:'linear-gradient(180deg,#e8d8ff,#7040c0)', strip:'#e8d8ff', chunks:['#7040c0','#c8b0f5','#9060d8'] },
+  { name:'Шоколадное',   front:'linear-gradient(180deg,#f5dcc0 0%,#7a4020 15%,#4a2010 100%)', top:'#f5dcc0', right:'linear-gradient(135deg,#a06030,#603010)', slab:'linear-gradient(180deg,#f5dcc0,#7a4020)', strip:'#f5dcc0', chunks:['#7a4020','#c0905060','#a06030'] },
+  { name:'Красное',      front:'linear-gradient(180deg,#ffe0d8 0%,#d03020 15%,#901010 100%)', top:'#ffe0d8', right:'linear-gradient(135deg,#e05040,#a01818)', slab:'linear-gradient(180deg,#ffe0d8,#d03020)', strip:'#ffe0d8', chunks:['#d03020','#f09080','#e05040'] },
+  { name:'Жёлтое',       front:'linear-gradient(180deg,#fffbd0 0%,#d4a800 15%,#9a7800 100%)', top:'#fffbd0', right:'linear-gradient(135deg,#f0c820,#b08800)', slab:'linear-gradient(180deg,#fffbd0,#d4a800)', strip:'#fffbd0', chunks:['#d4a800','#f5e080','#f0c820'] },
+  { name:'Бирюзовое',    front:'linear-gradient(180deg,#d0fff8 0%,#20a890 15%,#107860 100%)', top:'#d0fff8', right:'linear-gradient(135deg,#30c8a8,#108868)', slab:'linear-gradient(180deg,#d0fff8,#20a890)', strip:'#d0fff8', chunks:['#20a890','#90e8d8','#30c8a8'] },
+  { name:'Оранжевое',    front:'linear-gradient(180deg,#fff0d0 0%,#e87020 15%,#a04010 100%)', top:'#fff0d0', right:'linear-gradient(135deg,#f09040,#b05018)', slab:'linear-gradient(180deg,#fff0d0,#e87020)', strip:'#fff0d0', chunks:['#e87020','#f8c080','#f09040'] },
+  { name:'Изумрудное',   front:'linear-gradient(180deg,#d0ffe8 0%,#208858 15%,#105830 100%)', top:'#d0ffe8', right:'linear-gradient(135deg,#30b870,#106840)', slab:'linear-gradient(180deg,#d0ffe8,#208858)', strip:'#d0ffe8', chunks:['#208858','#80e0b0','#30b870'] },
+  { name:'Сиреневое',    front:'linear-gradient(180deg,#f8d8ff 0%,#b040d0 15%,#801090 100%)', top:'#f8d8ff', right:'linear-gradient(135deg,#d060e8,#9010a0)', slab:'linear-gradient(180deg,#f8d8ff,#b040d0)', strip:'#f8d8ff', chunks:['#b040d0','#e090f0','#d060e8'] },
+  { name:'Серебряное',   front:'linear-gradient(180deg,#f0f4f8 0%,#8090a8 15%,#506070 100%)', top:'#f0f4f8', right:'linear-gradient(135deg,#a0b0c0,#607080)', slab:'linear-gradient(180deg,#f0f4f8,#8090a8)', strip:'#f0f4f8', chunks:['#8090a8','#c0d0e0','#a0b0c0'] },
+  { name:'Золотое',      front:'linear-gradient(180deg,#fff8d0 0%,#c8980010 15%,#886800 100%)', top:'#fff8d0', right:'linear-gradient(135deg,#e0b820,#a07800)', slab:'linear-gradient(180deg,#fff8d0,#c89800)', strip:'#fff8d0', chunks:['#c89800','#f0d860','#e0b820'] },
+  { name:'Радужное',     front:'linear-gradient(180deg,#ffd0d0 0%,#d080c0 33%,#8080d0 66%,#80c0d0 100%)', top:'#ffd0e8', right:'linear-gradient(135deg,#d080c0,#8080d0)', slab:'linear-gradient(180deg,#ffd0d0,#d080c0)', strip:'#ffd0e8', chunks:['#d080c0','#80c0d0','#f0a0d0'] },
 ];
-var REWARDS=['😊','🌟','🦋','🌈','🦄','💎','🐉','🌙','🍀','🔮','👑','🎭','🐬','🦊','🐱','🌺'];
+
+var REWARDS = [
+  '😊','🌟','🦋','🌈','🦄','💎','🐉','🌙','🍀','🔮',
+  '👑','🎭','🐬','🦊','🐱','🌺','🔥','🍭','🎀','🐠',
+  '🦁','🐯','🐸','🦜','🦩','🌸','🍓','🍇','🍉','🎸',
+  '🎺','🎻','🎹','🥁','🎨','🖼','🎪','🎠','🎡','🎢',
+  '🚀','🛸','🌍','☄️','🌊','🏔','🌋','🦅','🦋','🐙',
+  '🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🦈',
+];
+
 var TOTAL = 8;
-var LAYER_H = 38; // px per layer — fixed, no screen calculation
+var LAYER_H = 38;
+
+// ═══════════════════════════════════════════
+//  SAVE / LOAD  (localStorage)
+// ═══════════════════════════════════════════
+function saveProgress() {
+  try {
+    localStorage.setItem('soap_level', level);
+    localStorage.setItem('soap_score', score);
+    localStorage.setItem('soap_collection', JSON.stringify(collection));
+    showSaveToast();
+  } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    var sl = localStorage.getItem('soap_level');
+    var ss = localStorage.getItem('soap_score');
+    var sc = localStorage.getItem('soap_collection');
+    if (sl) level = parseInt(sl) || 1;
+    if (ss) score = parseInt(ss) || 0;
+    if (sc) collection = JSON.parse(sc) || [];
+  } catch(e) {}
+}
+
+function showSaveToast() {
+  var t = document.getElementById('save-toast');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+// Auto-save when page closes / hides
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) saveProgress();
+});
+window.addEventListener('pagehide', saveProgress);
+window.addEventListener('beforeunload', saveProgress);
 
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
 var level      = 1;
 var score      = 0;
+var collection = []; // array of reward emojis found
 var theme      = THEMES[0];
 var reward     = '😊';
 var layersDone = 0;
@@ -436,7 +444,7 @@ var knifeEl    = document.getElementById('knife');
 var barEl      = document.getElementById('bar');
 
 // ═══════════════════════════════════════════
-//  RENDER — update DOM based on state
+//  RENDER
 // ═══════════════════════════════════════════
 function render() {
   var remaining = TOTAL - layersDone;
@@ -445,229 +453,21 @@ function render() {
   var slabOX    = Math.round(slicePct * 50);
   var slabOY    = Math.round(slicePct * 16);
 
-  // FRONT
   frontFace.style.height     = frontH + 'px';
   frontFace.style.background = theme.front;
 
-  // RIGHT
   rightFace.style.height     = frontH + 'px';
   rightFace.style.background = theme.right;
-  rightFace.style.clipPath   = 'polygon(0 0, 42px -22px, 42px ' + (frontH-22) + 'px, 0 ' + frontH + 'px)';
+  rightFace.style.clipPath   = 'polygon(0 0,42px -22px,42px '+(frontH-22)+'px,0 '+frontH+'px)';
 
-  // TOP color
   topFace.style.background = theme.top;
 
-  // Cut strip
   var stripH = (layersDone > 0 || slicePct > 0.05)
-    ? Math.round(Math.min(LAYER_H * 0.5, frontH * 0.2)) : 0;
+    ? Math.round(Math.min(LAYER_H*0.5, frontH*0.2)) : 0;
   cutStrip.style.height     = stripH + 'px';
-  cutStrip.style.background = 'linear-gradient(180deg,' + theme.strip + ',transparent)';
+  cutStrip.style.background = 'linear-gradient(180deg,'+theme.strip+',transparent)';
 
   // Layer lines
   layerLines.innerHTML = '';
   for (var l = 1; l < remaining; l++) {
-    var div = document.createElement('div');
-    div.className = 'll';
-    div.style.top = (l * LAYER_H) + 'px';
-    layerLines.appendChild(div);
-  }
-
-  // Emoji reveal
-  var pct = layersDone / TOTAL;
-  if (layersDone > 0) {
-    emojiEl.textContent  = reward;
-    emojiEl.style.fontSize = Math.round(10 + pct * 32) + 'px';
-    emojiEl.style.opacity  = Math.min(1, pct * 2.5);
-  } else {
-    emojiEl.style.fontSize = '0';
-    emojiEl.style.opacity  = '0';
-  }
-
-  // SLAB
-  if (slabH > 1 && slicePct < 1) {
-    slabEl.style.opacity    = '1';
-    slabEl.style.height     = slabH + 'px';
-    slabEl.style.top        = (22 - slabH + slabOY) + 'px';
-    slabEl.style.left       = slabOX + 'px';
-    slabEl.style.background = theme.slab;
-  } else {
-    slabEl.style.opacity = '0';
-  }
-
-  // Progress bar
-  var p = Math.max(0, (remaining * LAYER_H - slicePct * LAYER_H) / (TOTAL * LAYER_H));
-  barEl.style.width = (p * 100) + '%';
-}
-
-// ═══════════════════════════════════════════
-//  CHUNKS
-// ═══════════════════════════════════════════
-function spawnChunk(x, y, big) {
-  var n = big ? 5 : 1;
-  for (var i = 0; i < n; i++) {
-    var el  = document.createElement('div');
-    el.className = 'ck';
-    var s   = big ? 8 + Math.random()*18 : 4 + Math.random()*10;
-    var col = theme.chunks[Math.floor(Math.random() * theme.chunks.length)];
-    el.style.width        = s + 'px';
-    el.style.height       = (s * (0.4 + Math.random() * 0.8)) + 'px';
-    el.style.left         = (x - s/2) + 'px';
-    el.style.top          = (y - s/2) + 'px';
-    el.style.background   = col;
-    el.style.borderRadius = Math.random() > 0.4 ? '50%' : '4px';
-    var ang = -0.5 + (Math.random() - 0.5) * 2.2;
-    var d   = (big ? 55 : 25) + Math.random() * 90;
-    el.style.setProperty('--x', Math.cos(ang)*d + 'px');
-    el.style.setProperty('--y', Math.sin(ang)*d + 30 + Math.random()*30 + 'px');
-    el.style.setProperty('--r', (Math.random()*480 - 240) + 'deg');
-    document.body.appendChild(el);
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 700);
-  }
-}
-
-function scorePop(txt, x, y) {
-  var el = document.createElement('div');
-  el.className   = 'spt';
-  el.textContent = txt;
-  el.style.left  = x + 'px';
-  el.style.top   = y + 'px';
-  document.body.appendChild(el);
-  setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 900);
-}
-
-// ═══════════════════════════════════════════
-//  INPUT
-// ═══════════════════════════════════════════
-function getXY(e) {
-  if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  return { x: e.clientX, y: e.clientY };
-}
-
-document.getElementById('stage').addEventListener('mousedown', function(e) {
-  unlockAudio(); active = true; lastX = getXY(e).x;
-});
-document.getElementById('stage').addEventListener('touchstart', function(e) {
-  e.preventDefault(); unlockAudio(); active = true; lastX = getXY(e).x;
-}, { passive: false });
-
-document.addEventListener('mousemove', function(e) {
-  var p = getXY(e);
-  knifeEl.style.display = 'block';
-  knifeEl.style.left    = (p.x - 30) + 'px';
-  knifeEl.style.top     = (p.y - 48) + 'px';
-  if (active && canCut) doCut(p.x, p.y);
-});
-document.addEventListener('touchmove', function(e) {
-  e.preventDefault();
-  var p = getXY(e);
-  knifeEl.style.display = 'block';
-  knifeEl.style.left    = (p.x - 30) + 'px';
-  knifeEl.style.top     = (p.y - 48) + 'px';
-  if (active && canCut) doCut(p.x, p.y);
-}, { passive: false });
-
-document.addEventListener('mouseup',   function() { active = false; });
-document.addEventListener('touchend',  function() { active = false; });
-document.addEventListener('mouseleave',function() { active = false; knifeEl.style.display = 'none'; });
-
-function doCut(x, y) {
-  var dx = Math.abs(x - lastX);
-  if (dx < 1.5) return;
-  lastX = x;
-
-  slicePct = Math.min(1, slicePct + dx * 0.009);
-
-  sndTick++;
-  if (sndTick % 3 === 0) playScrape();
-
-  if (Math.random() < 0.5) spawnChunk(x, y, false);
-
-  render();
-
-  if (slicePct >= 1) finishLayer(x, y);
-}
-
-// ═══════════════════════════════════════════
-//  FINISH LAYER
-// ═══════════════════════════════════════════
-function finishLayer(px, py) {
-  canCut = false; active = false;
-  playPop();
-
-  for (var i = 0; i < 22; i++) {
-    (function(ii) {
-      setTimeout(function() {
-        spawnChunk(px + (Math.random()-.5)*180, py + (Math.random()-.5)*60, true);
-      }, ii * 28);
-    })(i);
-  }
-
-  var pts = 50 + layersDone * 12;
-  score  += pts;
-  document.getElementById('hscore').textContent = score;
-  scorePop('+' + pts, px, py - 36);
-
-  setTimeout(function() {
-    layersDone++;
-    slicePct = 0;
-    if (layersDone >= TOTAL) {
-      setTimeout(showWin, 350);
-    } else {
-      canCut = true;
-      render();
-    }
-  }, 600);
-}
-
-// ═══════════════════════════════════════════
-//  WIN / AD
-// ═══════════════════════════════════════════
-function showWin() {
-  document.getElementById('wem').textContent = reward;
-  document.getElementById('wh').textContent  = 'Находка внутри!';
-  document.getElementById('ws').textContent  = theme.name + ' мыло · Уровень ' + level;
-  document.getElementById('win').classList.add('on');
-  playTring();
-  setTimeout(playTring, 380);
-}
-
-function goAd() {
-  document.getElementById('win').classList.remove('on');
-  document.getElementById('ad').classList.add('on');
-  var btn = document.getElementById('adbtn');
-  var cnt = document.getElementById('adn');
-  btn.classList.remove('on');
-  var n = 5; cnt.textContent = n;
-  var t = setInterval(function() {
-    n--; cnt.textContent = n;
-    if (n <= 0) { clearInterval(t); cnt.textContent = '✓'; btn.classList.add('on'); }
-  }, 1000);
-}
-
-function goNext() {
-  document.getElementById('ad').classList.remove('on');
-  level++;
-  document.getElementById('hlvl').textContent = level;
-  initLevel();
-}
-
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-function initLevel() {
-  theme      = THEMES[(level - 1) % THEMES.length];
-  reward     = REWARDS[Math.floor(Math.random() * REWARDS.length)];
-  layersDone = 0;
-  slicePct   = 0;
-  canCut     = true;
-  active     = false;
-  sndTick    = 0;
-  render();
-}
-
-// START — synchronous, no waiting needed with fixed sizes
-initLevel();
-</script>
-</body>
-  </html>
-
+    var
