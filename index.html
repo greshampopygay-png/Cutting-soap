@@ -238,16 +238,20 @@ var CW,CH,SX,SY,SW,DEP;
 
 function setupGeometry(){
   CW=window.innerWidth;
-  CH=window.innerHeight-56; // below HUD
+  CH=window.innerHeight-56;
   canvas.width=CW;
   canvas.height=CH;
-  SW=Math.min(CW*0.55,210);  // soap front width
-  DEP=Math.round(SW*0.18);    // 3d depth
-  LH=Math.round(CH*0.60/TOTAL); // layer height
-  if(LH<28)LH=28;
-  // Center soap: bottom of front face at 62% of canvas height
-  SX=Math.round((CW-SW-DEP)/2); // left edge of front face
-  SY=Math.round(CH*0.30);       // top of front face (full height)
+  // Soap size: fits nicely on screen
+  SW=Math.round(Math.min(CW*0.58,220));
+  DEP=Math.round(SW*0.20);
+  LH=Math.round(Math.min(CH*0.62/TOTAL, 44));
+  if(LH<26)LH=26;
+  var totalH=TOTAL*LH+DEP;
+  // Center horizontally (account for right-side depth)
+  SX=Math.round((CW-SW-DEP)/2);
+  // Center vertically
+  SY=Math.round((CH-totalH)/2)+DEP;
+  if(SY<DEP+4)SY=DEP+4;
 }
 
 // ── DRAW ───────────────────────────────────────────
@@ -452,4 +456,4 @@ function finishLayer(px,py){
   setTimeout(function(){
     done++;pct=0;
     if(done>=TOTAL){
-      if(coll.index
+      if(co
