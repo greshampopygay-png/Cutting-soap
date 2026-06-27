@@ -254,7 +254,7 @@ function render(){
 
 // INPUT — touch on whole screen
 document.addEventListener('mousedown',function(e){ua();active=true;lastX=e.clientX;});
-document.addEventListener('touchstart',function(e){ua();active=true;lastX=e.touches[0].clientX;},{passive:true});
+document.addEventListener('touchstart',function(e){e.preventDefault();ua();active=true;lastX=e.touches[0].clientX;},{passive:false});
 document.addEventListener('mousemove',function(e){
   eKnife.style.display='block';eKnife.style.left=(e.clientX-28)+'px';eKnife.style.top=(e.clientY-46)+'px';
   if(active&&canCut)cut(e.clientX,e.clientY);
@@ -269,8 +269,10 @@ document.addEventListener('mouseup',function(){active=false;});
 document.addEventListener('touchend',function(){active=false;});
 
 function cut(x,y){
-  var dx=Math.abs(x-lastX);if(dx<1.5)return;lastX=x;
-  pct=Math.min(1,pct+dx*0.009);
+  var dx=Math.abs(x-lastX);
+  lastX=x;
+  if(dx<1)dx=3; // ensure minimum progress even on small moves
+  pct=Math.min(1,pct+dx*0.012);
   stk++;if(stk%3===0)scrape();
   if(Math.random()<0.5)chunk(x,y,false);
   render();
@@ -315,5 +317,4 @@ function finishLayer(px,py){
 function showWin(){document.getElementById('wem').textContent=rw;document.getElementById('wh').textContent='Находка: '+rw;document.getElementById('ws').textContent=th.n+' мыло · Уровень '+level;document.getElementById('win-ov').classList.add('on');tring();setTimeout(tring,380);}
 function goAd(){
   document.getElementById('win-ov').classList.remove('on');
-  try{window.open('https://omg10.com/4/11109908','_blank','noopener,noreferrer');}catch(e){}
-  doc
+  try{window.open('https://om
